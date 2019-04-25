@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const Event = require('./models/event');
 
 const requestLogger = (req, res, next) => {
   console.log('Method:', req.method);
@@ -58,22 +60,20 @@ let events = [
   }
 ];
 
-const PORT = process.env.PORT || 3001;
-
 app.get('/', (req, res) => {
   res.send('Test!');
 });
 
 app.get('/api/events', (req, res) => {
-  res.json(events);
+  Event.find({}).then(events => {
+    res.json(events.map(event => event.toJSON()));
+  });
 });
 
 app.get('/api/events/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const event = events.find(cEvent => cEvent.id === id);
-
-  if (event) res.json(event);
-  else res.status(404).end();
+  Event.find({}).then(events => {
+    res.json(events.map(event => event.toJSON()));
+  });
 });
 
 app.post('/api/events', (req, res) => {
@@ -111,6 +111,7 @@ app.delete('/api/events/:id', (req, res) => {
   events = events.filter(cEvent => cEvent.id !== id);
   res.status(204).end();
 });
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
