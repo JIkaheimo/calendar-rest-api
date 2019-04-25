@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 
 const url = process.env.MONGODB_URI;
-
 
 console.log('Connecting to', url);
 
@@ -15,12 +15,11 @@ mongoose
   });
 
 const eventSchema = new mongoose.Schema({
-  name: String,
-  date: String,
-  durationInHours: Number
+  name: { type: String, minlength: 6, required: true },
+  date: { type: Date, required: true },
+  durationInHours: { type: Number, min: 1, max: 100, required: true }
 });
 
-// Set schema to remove db relevant data.
 eventSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();

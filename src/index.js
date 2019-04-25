@@ -1,9 +1,13 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const Event = require('./models/event');
 
+// MIDDLEWARES =================
 const requestLogger = (req, res, next) => {
   console.log('Method:', req.method);
   console.log('Path:  ', req.path);
@@ -12,14 +16,20 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'unknown endpoint' });
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+    return res.status(400).send({ error: 'Wrong ID format.' });
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message });
+  }
+
+  next(error);
 };
 
-const generateId = () => {
-  const maxId =
-    events.length > 0 ? Math.max(...events.map(cEvent => cEvent.id)) : 0;
-  return maxId + 1;
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(cors());
@@ -27,94 +37,80 @@ app.use(express.static('build'));
 app.use(express.json());
 app.use(requestLogger);
 
-let events = [
-  {
-    id: 1,
-    name: 'Event 1',
-    date: '2017-12-10T17:30:31.098Z',
-    durationInHours: 3
-  },
-  {
-    id: 2,
-    name: 'Event 2',
-    date: '2017-12-10T17:30:31.098Z',
-    durationInHours: 2
-  },
-  {
-    id: 3,
-    name: 'Event 3',
-    date: '2017-12-10T17:30:31.098Z',
-    durationInHours: 1
-  },
-  {
-    id: 4,
-    name: 'Event 4',
-    date: '2017-12-10T17:30:31.098Z',
-    durationInHours: 5
-  },
-  {
-    id: 5,
-    name: 'Event 5',
-    date: '2017-12-10T17:30:31.098Z',
-    durationInHours: 4
-  }
-];
+// REQUSTS ================
 
 app.get('/', (req, res) => {
   res.send('Test!');
 });
 
+// GET events
 app.get('/api/events', (req, res) => {
   Event.find({}).then(events => {
     res.json(events.map(event => event.toJSON()));
   });
 });
 
-app.get('/api/events/:id', (req, res) => {
-  Event.find({}).then(events => {
-    res.json(events.map(event => event.toJSON()));
-  });
+// GET event
+app.get('/api/events/:id', (req, res, next) => {
+  Event.findById(req.params.id)
+    .then(event => {
+      if (event) res.json(event.toJSON());
+      else res.status(204).send();
+    })
+    .catch(error => next(error));
 });
 
-app.post('/api/events', (req, res) => {
+// PUT/UPDATE event
+app.put('/api/events/:id', (req, res, next) => {
   const body = req.body;
 
-  if (!body.name) {
-    return res.status(404).json({
-      error: 'Event name missing.'
-    });
-  }
-  if (!body.date) {
-    return res.status(404).json({
-      error: 'Event date missing.'
-    });
-  }
-  if (!body.durationInHours) {
-    return res.status(404).json({
-      error: 'Event duration missing.'
-    });
-  }
-
   const event = {
-    name: body.name,
-    date: body.date,
-    durationInHours: body.durationInHours,
-    id: generateId()
+    ...body
   };
 
-  events = events.concat(event);
-  res.json(event);
+  Event.findByIdAndUpdate(req.params.id, event, { new: true })
+    .then(updatedEvent => {
+      res.json(updatedEvent.toJSON());
+    })
+    .catch(error => next(error));
 });
 
-app.delete('/api/events/:id', (req, res) => {
-  const id = Number(req.params.id);
-  events = events.filter(cEvent => cEvent.id !== id);
-  res.status(204).end();
+// POST/CREATE event
+app.post('/api/events', (req, res, next) => {
+  const body = req.body;
+
+  const event = new Event({
+    name: body.name,
+    date: body.date,
+    durationInHours: body.durationInHours
+  });
+
+  event
+    .save()
+    .then(savedEvent => savedEvent.toJSON())
+    .then(savedAndFormattedEvent => {
+      res.json(savedAndFormattedEvent);
+    })
+    .catch(error => next(error));
 });
+
+// DELETE event
+app.delete('/api/events/:id', (req, res, next) => {
+  Event.findByIdAndRemove(req.params.id)
+    .then(event => {
+      res.status(204).end();
+    })
+    .catch(error => next(error));
+});
+
+// SETUP CONNECTION ==============
+
 const PORT = process.env.PORT;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// Display verbose error for invalid paths.
 app.use(unknownEndpoint);
+// Handle errors that are passed from requests handlers.
+app.use(errorHandler);

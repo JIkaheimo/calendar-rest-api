@@ -1,15 +1,25 @@
-GET http://localhost:3001/events
+GET http://localhost:3001/api/events
 
 ###
 
-POST http://localhost:3001/events
+POST http://localhost:3001/api/events
 Content-Type: application/json
 
 {
-  "name": "Hello REST",
+  "name": "Syö karkkia",
   "date": "2017-12-10T17:30:31.098Z",
   "durationInHours": 1
 }
 
 ###
-DELETE http://localhost:3001/events/3
+
+PUT http://localhost:3001/api/events/5cc16cd37cd69a7dc72bd8af
+Content-Type: application/json
+
+{
+  "name": "Päivitetty nimi"
+}
+
+
+###
+DELETE http://localhost:3001/api/events/5cc16cd37cd69a7dc72bd8af
