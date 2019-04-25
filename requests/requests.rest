@@ -2,6 +2,10 @@ GET http://localhost:3001/api/events
 
 ###
 
+GET https://calendar-rest-api.herokuapp.com/api/events/5ac17990a0b80b0df16922d0
+
+###
+
 POST http://localhost:3001/api/events
 Content-Type: application/json
 
@@ -13,11 +17,13 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3001/api/events/5cc16cd37cd69a7dc72bd8af
+PUT http://localhost:3001/api/events/5cc1622509fde27028bb0a8b
 Content-Type: application/json
 
 {
-  "name": "Päivitetty nimi"
+  "name": "Päivitetty nimi",
+  "asd": "hei",
+  "durationInHours": 3
 }
 
 
