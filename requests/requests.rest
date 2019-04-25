@@ -1,0 +1,15 @@
+GET http://localhost:3001/events
+
+###
+
+POST http://localhost:3001/events
+Content-Type: application/json
+
+{
+  "name": "Hello REST",
+  "date": "2017-12-10T17:30:31.098Z",
+  "durationInHours": 1
+}
+
+###
+DELETE http://localhost:3001/events/3
