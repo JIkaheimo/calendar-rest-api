@@ -64,11 +64,11 @@ app.get('/', (req, res) => {
   res.send('Test!');
 });
 
-app.get('/events', (req, res) => {
+app.get('/api/events', (req, res) => {
   res.json(events);
 });
 
-app.get('/events/:id', (req, res) => {
+app.get('/api/events/:id', (req, res) => {
   const id = Number(req.params.id);
   const event = events.find(cEvent => cEvent.id === id);
 
@@ -76,7 +76,7 @@ app.get('/events/:id', (req, res) => {
   else res.status(404).end();
 });
 
-app.post('/events', (req, res) => {
+app.post('/api/events', (req, res) => {
   const body = req.body;
 
   if (!body.name) {
@@ -106,7 +106,7 @@ app.post('/events', (req, res) => {
   res.json(event);
 });
 
-app.delete('/events/:id', (req, res) => {
+app.delete('/api/events/:id', (req, res) => {
   const id = Number(req.params.id);
   events = events.filter(cEvent => cEvent.id !== id);
   res.status(204).end();
