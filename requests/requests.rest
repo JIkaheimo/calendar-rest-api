@@ -1,8 +1,8 @@
-GET http://localhost:3001/api/events
+GET http://localhost:3001/api/events?
 
 ###
 
-GET https://calendar-rest-api.herokuapp.com/api/events/5ac17990a0b80b0df16922d0
+GET https://calendar-rest-api.herokuapp.com/api/events/5cc2cceae090b621d184ed0d
 
 ###
 
@@ -10,22 +10,24 @@ POST http://localhost:3001/api/events
 Content-Type: application/json
 
 {
-  "name": "Syö karkkia",
-  "date": "2017-12-10T17:30:31.098Z",
-  "durationInHours": 1
+  "name": "sadasdad",
+  "nam": "Kesdaasddasasddsasdt ",
+  "date": "21.12.2005 05:00",
+  "durationInHours": 0
 }
 
 ###
 
-PUT http://localhost:3001/api/events/5cc1622509fde27028bb0a8b
+PUT http://localhost:3001/api/events/5cc2cceae090b621d184ed0d
 Content-Type: application/json
 
 {
-  "name": "Päivitetty nimi",
+  "name": "Päivitetympi nimi",
+  "date": "05.08.1994 05:12",
   "asd": "hei",
   "durationInHours": 3
 }
 
 
 ###
-DELETE http://localhost:3001/api/events/5cc16cd37cd69a7dc72bd8af
+DELETE http://localhost:3001/api/events/5cc1ee28f55e6062e212ef65
