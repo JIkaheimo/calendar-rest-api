@@ -10,6 +10,7 @@ eventsRouter.get('/', async (req, res, next) => {
   const timeQuery = req.query.time;
 
   const eventAggr = Event.aggregate();
+  eventAggr.addFields({ temp: null });
 
   // Filter by year
   if (yearQuery) {
@@ -65,8 +66,7 @@ eventsRouter.get('/', async (req, res, next) => {
       .match({
         $and: [
           {
-            startingHour: { $lte: time.hour() },
-            startingMinute: { $lte: time.minute() }
+            startingHour: { $lte: time.hour() }
           },
           {
             endingHour: { $gte: time.hour() }
@@ -76,9 +76,6 @@ eventsRouter.get('/', async (req, res, next) => {
 
     // Filter by minutes
   }
-
-  // Limit retrieved data to 20
-  eventAggr.limit(20);
 
   // Execute the aggregation query.
   const eventData = await eventAggr.exec();
