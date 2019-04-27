@@ -10,10 +10,10 @@ POST http://localhost:3001/api/events
 Content-Type: application/json
 
 {
-  "name": "sadasdad",
+  "name": "Tapahtuma",
   "nam": "Kesdaasddasasddsasdt ",
-  "date": "21.12.2005 05:00",
-  "durationInHours": 0
+  "date": "27.04.2019 05:00",
+  "durationInHours": 3
 }
 
 ###

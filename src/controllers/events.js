@@ -7,6 +7,7 @@ eventsRouter.get('/', async (req, res, next) => {
   const yearQuery = Number(req.query.year);
   const monthQuery = Number(req.query.month);
   const dayQuery = Number(req.query.day);
+  const sorted = Boolean(req.query.sorted);
   const timeQuery = req.query.time;
 
   const eventAggr = Event.aggregate();
@@ -77,12 +78,16 @@ eventsRouter.get('/', async (req, res, next) => {
     // Filter by minutes
   }
 
+  if (sorted) eventAggr.sort('date');
+
   // Execute the aggregation query.
-  const eventData = await eventAggr.exec();
-
-  const events = eventData.map(event => new Event(event).toJSON());
-
-  res.status(200).send(events);
+  try {
+    const eventData = await eventAggr.exec();
+    const events = eventData.map(event => new Event(event).toJSON());
+    res.status(200).send(events);
+  } catch (e) {
+    next(e);
+  }
 });
 
 // GET event
