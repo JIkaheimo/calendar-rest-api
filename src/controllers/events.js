@@ -39,7 +39,8 @@ eventsRouter.get('/', async (req, res, next) => {
 
   // Filter by time
   if (timeQuery) {
-    let time = moment(timeQuery, 'HH:mm', true);
+    let time = moment(timeQuery, 'HH:mm', true).utc();
+    console.log(time);
     if (!time.isValid()) {
       return res
         .status(404)
@@ -47,19 +48,15 @@ eventsRouter.get('/', async (req, res, next) => {
         .end;
     }
 
-    let offset = time.utcOffset() / 60 - 1;
-    offset = `${offset >= 0 ? '+' : '-'}${
-      Math.abs(offset) > 9 ? offset : '0' + offset
-    }:00`;
-
     // Add hour and minute fields to aggregation
     eventAggr
 
       .addFields({
-        startingHour: { $hour: { date: '$date', timezone: offset.toString() } },
+        startingHour: { $hour: { date: '$date' } },
         startingMinute: { $minute: '$date' }
       })
 
+      /*
       .addFields({
         endingHour: { $add: ['$startingHour', '$durationInHours'] }
       })
@@ -73,6 +70,14 @@ eventsRouter.get('/', async (req, res, next) => {
             endingHour: { $gte: time.hour() }
           }
         ]
+      });*/
+      .match({
+        $and: [
+          {
+            startingHour: time.hour()
+          },
+          { startingMinute: time.minute() }
+        ]
       });
 
     // Filter by minutes
@@ -83,8 +88,11 @@ eventsRouter.get('/', async (req, res, next) => {
   // Execute the aggregation query.
   try {
     const eventData = await eventAggr.exec();
-    const events = eventData.map(event => new Event(event).toJSON());
-    res.status(200).send(events);
+
+    if (eventData.length) {
+      const events = eventData.map(event => new Event(event).toJSON());
+      res.status(200).send(events);
+    } else res.status(404).end();
   } catch (e) {
     next(e);
   }
