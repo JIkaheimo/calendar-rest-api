@@ -38,7 +38,7 @@ eventsRouter.get('/', async (req, res, next) => {
   // Filter by time
   if (timeQuery) {
     let time = moment(timeQuery, 'HH:mm', true);
-    if (time) {
+    if (!time) {
       return res
         .status(404)
         .json({ error: "time query parameter should be in format 'HH:mm'" })
