@@ -49,7 +49,7 @@ eventsRouter.get('/', async (req, res, next) => {
 
     let offset = time.utcOffset() / 60 - 1;
     offset = `${offset >= 0 ? '+' : '-'}${
-      offset > 9 ? offset : '0' + offset
+      abs(offset) > 9 ? offset : '0' + offset
     }:00`;
 
     // Add hour and minute fields to aggregation
