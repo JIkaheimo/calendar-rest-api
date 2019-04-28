@@ -1,47 +1,56 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const helpers = require('./helpers');
+const axios = require('axios');
 const app = require('../app');
-const Event = require('../models/event');
 const api = supertest(app);
 
-const initialEvents = [
-  {
-    name: 'Programming exercise',
-    date: '25.04.2019 15:30',
-    durationInHours: 5
-  },
-  {
-    name: 'Job interview',
-    date: '28.04.2019 17:30',
-    durationInHours: 5
-  }
-];
+const Event = require('../models/event');
 
-beforeEach(async () => {
-  await Event.deleteMany({});
+describe('when there are initial notes in DB', async () => {
+  beforeEach(async () => {
+    // Clear test DB
+    await Event.deleteMany({});
+    // Add some data to test
+    const eventObjs = helpers.initialEvents.map(event => new Event(event));
+    const promises = eventObjs.map(event => event.save());
+    await Promise.all(promises);
+  });
 
-  let eventObj = new Event(initialEvents[0]);
-  await eventObj.save();
+  describe('GET /api/events', async () => {
+    test('events are returned as JSON', async () => {
+      await api
+        .get('/api/events')
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+    });
 
-  eventObj = new Event(initialEvents[1]);
-  await eventObj.save();
+    test('all events are returned as json', async () => {
+      const response = await api.get('/api/events');
+      expect(response.body.length).toBe(helpers.initialEvents.length);
+    });
+
+    test('a specific event is within the returned events', async () => {
+      const response = await api.get('/api/events');
+      const events = response.body;
+      const eventNames = events.map(event => event.name);
+      const randomEvent = helpers.getRandomEvent(events);
+      expect(eventNames).toContain(randomEvent.name);
+    });
+  });
 });
 
-test('events are returned as json', async () => {
-  await api
-    .get('/api/events')
-    .expect(200)
-    .expect('Content-Type', /application\/json/);
-});
+describe('when there is no data in database', async () => {
+  beforeEach(async () => {
+    // Clear test DB
+    await Event.deleteMany({});
+  });
 
-test('there are two events', async () => {
-  const res = await api.get('/api/events');
-  expect(res.body.length).toBe(2);
-});
-
-test('the first event is doing the programming exercise', async () => {
-  const res = await api.get('/api/events');
-  expect(res.body[0].name).toBe('Programming exercise');
+  describe('GET /api/events', async () => {
+    test('no events are returned', async () => {
+      await api.get('/api/events').expect(204);
+    });
+  });
 });
 
 afterAll(() => {

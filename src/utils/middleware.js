@@ -1,4 +1,5 @@
 const logger = require('./logger');
+const path = require('path');
 
 const connectionLogger = (req, res, next) => {
   logger.info('------------------------');
@@ -10,7 +11,7 @@ const connectionLogger = (req, res, next) => {
 };
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'Unknown endpoint.' });
+  res.status(404).json({ error: 'Unknown Endpoint...' });
 };
 
 const errorHandler = (error, req, res, next) => {

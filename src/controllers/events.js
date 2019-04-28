@@ -1,119 +1,67 @@
 const eventsRouter = require('express').Router();
 const Event = require('../models/event');
+const queries = require('../queries/event_queries');
 const moment = require('moment');
 
 // GET events
 eventsRouter.get('/', async (req, res, next) => {
+  // Get "known" query parameters
   const yearQuery = Number(req.query.year);
   const monthQuery = Number(req.query.month);
   const dayQuery = Number(req.query.day);
+  const time = moment(req.query.time, 'HH:mm', true);
   const sorted = Boolean(req.query.sorted);
-  const timeQuery = req.query.time;
 
+  // Initialize the aggregator
   const eventAggr = Event.aggregate();
-  eventAggr.addFields({ temp: null });
+  eventAggr.addFields({ _: null });
 
-  // Filter by year
-  if (yearQuery) {
-    eventAggr.addFields({
-      year: { $year: '$date' }
-    });
-    eventAggr.match({ year: yearQuery });
+  // Apply filters
+  if (yearQuery) queries.applyYearFilter(eventAggr, yearQuery);
+  if (monthQuery) queries.applyMonthFilter(eventAggr, monthQuery);
+  if (dayQuery) queries.applyDayFilter(eventAggr, dayQuery);
+
+  if (time.isValid()) {
+    const utcTime = time.utc();
+    queries.applyTimeFilter(eventAggr, utcTime.hour(), utcTime.minute());
   }
 
-  // Filter by months
-  if (monthQuery) {
-    eventAggr.addFields({
-      month: { $month: '$date' }
-    });
-    eventAggr.match({ month: monthQuery });
-  }
-
-  // Filter by day
-  if (dayQuery) {
-    eventAggr.addFields({
-      day: { $dayOfMonth: '$date' }
-    });
-    eventAggr.match({ day: dayQuery });
-  }
-
-  // Filter by time
-  if (timeQuery) {
-    let time = moment(timeQuery, 'HH:mm', true).utc();
-    console.log(time);
-    if (!time.isValid()) {
-      return res
-        .status(404)
-        .json({ error: "time query parameter should be in format 'HH:mm'" })
-        .end;
-    }
-
-    // Add hour and minute fields to aggregation
-    eventAggr
-
-      .addFields({
-        startingHour: { $hour: { date: '$date' } },
-        startingMinute: { $minute: '$date' }
-      })
-
-      /*
-      .addFields({
-        endingHour: { $add: ['$startingHour', '$durationInHours'] }
-      })
-
-      .match({
-        $and: [
-          {
-            startingHour: { $lte: time.hour() }
-          },
-          {
-            endingHour: { $gte: time.hour() }
-          }
-        ]
-      });*/
-      .match({
-        $and: [
-          {
-            startingHour: time.hour()
-          },
-          { startingMinute: time.minute() }
-        ]
-      });
-
-    // Filter by minutes
-  }
-
+  // Sorting
   if (sorted) eventAggr.sort('date');
 
-  // Execute the aggregation query.
+  // Request data with the aggreagator.
   try {
     const eventData = await eventAggr.exec();
 
     if (eventData.length) {
       const events = eventData.map(event => new Event(event).toJSON());
       res.status(200).send(events);
-    } else res.status(404).end();
-  } catch (e) {
-    next(e);
+    } else
+      res.status(204).send({ error: 'No documents in this collection...' });
+  } catch (error) {
+    next(error);
   }
 });
 
 // GET event
 eventsRouter.get('/:id', async (req, res, next) => {
   try {
-    let event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id);
 
+    // Success
     if (event) {
-      event = event.toJSON();
+      const eventJSON = event.toJSON();
       res
-        .json(event)
+        .json(eventJSON)
         .status(200)
         .end();
+      // Not in DB
     } else {
       res.status(404).end();
     }
-  } catch (exception) {
-    next(exception);
+    // Other errors
+  } catch (e) {
+    next(e);
   }
 });
 
@@ -129,9 +77,9 @@ eventsRouter.post('/', async (req, res, next) => {
 
   try {
     const savedEvent = await event.save();
-    res.json(savedEvent.toJSON());
-  } catch (exception) {
-    next(exception);
+    res.status(201).json(savedEvent.toJSON());
+  } catch (e) {
+    next(e);
   }
 });
 
@@ -141,8 +89,8 @@ eventsRouter.delete('/:id', async (req, res, next) => {
     const event = await Event.findByIdAndRemove(req.params.id);
     if (!event) res.status(204).end();
     else res.status(200).end();
-  } catch (exception) {
-    next(exception);
+  } catch (e) {
+    next(e);
   }
 });
 

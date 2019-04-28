@@ -10,9 +10,9 @@ POST http://localhost:3001/api/events
 Content-Type: application/json
 
 {
-  "name": "Tapahtuma",
+  "name": "LAN-party",
   "nam": "Kesdaasddasasddsasdt ",
-  "date": "27.04.2019 05:00",
+  "date": "27.04.2019 03:00",
   "durationInHours": 3
 }
 
@@ -30,4 +30,4 @@ Content-Type: application/json
 
 
 ###
-DELETE http://localhost:3001/api/events/5cc1ee28f55e6062e212ef65
+DELETE http://localhost:3001/api/events/5cc311c7660a1b000456eef0
