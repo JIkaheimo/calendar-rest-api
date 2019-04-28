@@ -5,41 +5,40 @@ const moment = require('moment');
 
 // GET events
 eventsRouter.get('/', async (req, res, next) => {
-  // Get "known" query parameters
-  const yearQuery = Number(req.query.year);
-  const monthQuery = Number(req.query.month);
-  const dayQuery = Number(req.query.day);
+  // QUERY PARAMS
+  const name = String(req.query.name);
+  const year = Number(req.query.year);
+  const month = Number(req.query.month);
+  const day = Number(req.query.day);
   const time = moment(req.query.time, 'HH:mm', true);
   const sorted = Boolean(req.query.sorted);
 
-  // Initialize the aggregator
+  // INIT
   const eventAggr = Event.aggregate();
   eventAggr.addFields({ _: null });
 
-  // Apply filters
-  if (yearQuery) queries.applyYearFilter(eventAggr, yearQuery);
-  if (monthQuery) queries.applyMonthFilter(eventAggr, monthQuery);
-  if (dayQuery) queries.applyDayFilter(eventAggr, dayQuery);
-
+  // FILTERS
+  if (typeof name !== undefined) queries.applyNameFilter(eventAggr, name);
+  if (year) queries.applyYearFilter(eventAggr, year);
+  if (month) queries.applyMonthFilter(eventAggr, month);
+  if (day) queries.applyDayFilter(eventAggr, day);
   if (time.isValid()) {
     const utcTime = time.utc();
     queries.applyTimeFilter(eventAggr, utcTime.hour(), utcTime.minute());
   }
 
-  // Sorting
+  // SORTING
   if (sorted) eventAggr.sort('date');
 
-  // Request data with the aggreagator.
+  // FETCH DATA
   try {
     const eventData = await eventAggr.exec();
-
     if (eventData.length) {
       const events = eventData.map(event => new Event(event).toJSON());
-      res.status(200).send(events);
-    } else
-      res.status(204).send({ error: 'No documents in this collection...' });
-  } catch (error) {
-    next(error);
+      res.json(events);
+    } else res.status(404).end();
+  } catch (exception) {
+    next(exception);
   }
 });
 
@@ -47,39 +46,22 @@ eventsRouter.get('/', async (req, res, next) => {
 eventsRouter.get('/:id', async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id);
-
-    // Success
-    if (event) {
-      const eventJSON = event.toJSON();
-      res
-        .json(eventJSON)
-        .status(200)
-        .end();
-      // Not in DB
-    } else {
-      res.status(404).end();
-    }
-    // Other errors
-  } catch (e) {
-    next(e);
+    if (event) res.json(event.toJSON());
+    else res.status(404).end();
+  } catch (exception) {
+    next(exception);
   }
 });
 
 // POST/CREATE event
 eventsRouter.post('/', async (req, res, next) => {
-  const body = req.body;
-  let date = body.date;
-
-  const event = new Event({
-    ...body,
-    date
-  });
+  const event = new Event(req.body);
 
   try {
     const savedEvent = await event.save();
-    res.status(201).json(savedEvent.toJSON());
-  } catch (e) {
-    next(e);
+    res.json(savedEvent.toJSON());
+  } catch (exception) {
+    next(exception);
   }
 });
 
@@ -89,31 +71,23 @@ eventsRouter.delete('/:id', async (req, res, next) => {
     const event = await Event.findByIdAndRemove(req.params.id);
     if (!event) res.status(204).end();
     else res.status(200).end();
-  } catch (e) {
-    next(e);
+  } catch (exception) {
+    next(exception);
   }
 });
 
 // PUT/UPDATE event
-eventsRouter.put('/:id', (req, res, next) => {
-  const body = req.body;
-  let date = body.date;
-
-  const event = {
-    ...body
-  };
-
-  if (date !== null) event.date = date;
-
-  Event.findByIdAndUpdate(req.params.id, event, {
-    new: true,
-    upsert: true,
-    runValidators: true
-  })
-    .then(updatedEvent => {
-      res.json(updatedEvent.toJSON());
-    })
-    .catch(error => next(error));
+eventsRouter.put('/:id', async (req, res, next) => {
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      { _id: req.params.id },
+      req.body
+    );
+    if (updatedEvent) res.json(updatedEvent.toJSON());
+    else res.status(404).end();
+  } catch (exception) {
+    next(exception);
+  }
 });
 
 module.exports = eventsRouter;

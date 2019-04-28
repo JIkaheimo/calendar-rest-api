@@ -1,69 +1,66 @@
 const applyYearFilter = (aggr, queriedYear) => {
-  // Retrieve year from the saved date
-  aggr.addFields({
-    year: { $year: '$date' }
-  });
+  // Retrieve year from the saved date.
 
-  // Match with the given year
-  aggr.match({ year: queriedYear });
+  aggr
+    .addFields({
+      year: { $year: '$date' }
+    })
+
+    // Match with the given year.
+    .match({ year: queriedYear });
 };
 
 const applyMonthFilter = (aggr, queriedMonth) => {
-  // Retrieve month from the saved date
-  aggr.addFields({
-    month: { $month: '$date' }
-  });
+  // Retrieve month from the saved date.
 
-  // Match with the given month
-  aggr.match({ month: queriedMonth });
+  aggr
+    .addFields({
+      month: { $month: '$date' }
+    })
+
+    // Match with the given month.
+    .match({ month: queriedMonth });
 };
 
 const applyDayFilter = (aggr, queriedDate) => {
-  // Retrieve day from the saved date
-  aggr.addFields({
-    day: { $dayOfMonth: '$date' }
-  });
+  // Retrieve day from the saved date.
 
-  // Match with the given date
-  aggr.match({ day: queriedDate });
+  aggr
+    .addFields({
+      day: { $dayOfMonth: '$date' }
+    })
+
+    // Match with the given date
+    .match({ day: queriedDate });
 };
 
 const applyTimeFilter = (aggr, hour, minute) => {
   // Retrieve hours and minutes from the saved date.
+
   aggr
+    // Get the starting hour and minute.
     .addFields({
       startingHour: { $hour: { date: '$date' } },
       startingMinute: { $minute: '$date' }
     })
+
+    // Match with the given hours and minutes.
     .match({
-      $and: [
-        {
-          startingHour: hour
-        },
-        { startingMinute: minute }
-      ]
+      $and: [{ startingHour: hour }, { startingMinute: minute }]
     });
 };
 
-/*
-    .addFields({
-      endingHour: { $add: ['$startingHour', '$durationInHours'] }
-    })
-    */
-/*
-  .match({
-    $and: [
-      {
-        startingHour: { $lte: time.hour() }
-      },
-      {
-        endingHour: { $gte: time.hour() }
-      }
-    ]
-  });
-  */
+const applyNameFilter = (aggr, name) => {
+  // Get case-insensitive names.
+
+  name = name.toLowerCase();
+  aggr
+    .addFields({ lowerName: { $toLower: '$name' } })
+    .match({ lowerName: { $regex: '.*' + name + '.*' } });
+};
 
 module.exports = {
+  applyNameFilter,
   applyYearFilter,
   applyMonthFilter,
   applyDayFilter,

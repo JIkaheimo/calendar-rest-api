@@ -1,4 +1,4 @@
-GET http://localhost:3001/api/events?
+GET http://localhost:3001/api/events
 
 ###
 
@@ -10,7 +10,6 @@ POST http://localhost:3001/api/events
 Content-Type: application/json
 
 {
-  "name": "LAN-party",
   "nam": "Kesdaasddasasddsasdt ",
   "date": "27.04.2019 03:00",
   "durationInHours": 3
@@ -18,16 +17,14 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3001/api/events/5cc2cceae090b621d184ed0d
+PUT http://localhost:3001/api/events/5cc2cceae090b621d184ed0f
 Content-Type: application/json
 
 {
-  "name": "Päivitetympi nimi",
-  "date": "05.08.1994 05:12",
-  "asd": "hei",
+  "name": "Päivitesti nimiä",
   "durationInHours": 3
 }
 
 
 ###
-DELETE http://localhost:3001/api/events/5cc311c7660a1b000456eef0
+DELETE http://localhost:3001/api/events/5cc311c7660a1b000456eedd
