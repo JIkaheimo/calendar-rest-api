@@ -48,7 +48,7 @@ describe('when there is no data in database', async () => {
 
   describe('GET /api/events', async () => {
     test('no events are returned', async () => {
-      await api.get('/api/events').expect(204);
+      await api.get('/api/events').expect(404);
     });
   });
 });

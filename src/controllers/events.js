@@ -6,7 +6,7 @@ const moment = require('moment');
 // GET events
 eventsRouter.get('/', async (req, res, next) => {
   // QUERY PARAMS
-  const name = String(req.query.name);
+  const name = req.query.name;
   const year = Number(req.query.year);
   const month = Number(req.query.month);
   const day = Number(req.query.day);
@@ -18,7 +18,9 @@ eventsRouter.get('/', async (req, res, next) => {
   eventAggr.addFields({ _: null });
 
   // FILTERS
-  if (typeof name !== undefined) queries.applyNameFilter(eventAggr, name);
+  if (name) {
+    queries.applyNameFilter(eventAggr, String(name));
+  }
   if (year) queries.applyYearFilter(eventAggr, year);
   if (month) queries.applyMonthFilter(eventAggr, month);
   if (day) queries.applyDayFilter(eventAggr, day);
