@@ -71,8 +71,8 @@ eventsRouter.post('/', async (req, res, next) => {
 eventsRouter.delete('/:id', async (req, res, next) => {
   try {
     const event = await Event.findByIdAndRemove(req.params.id);
-    if (!event) res.status(204).end();
-    else res.status(200).end();
+    if (event) res.status(204).end();
+    else res.status(404).end();
   } catch (exception) {
     next(exception);
   }
