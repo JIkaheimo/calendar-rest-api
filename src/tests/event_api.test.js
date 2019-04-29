@@ -25,13 +25,13 @@ describe('when there are initial events in DB', async () => {
         .expect('Content-Type', /application\/json/);
     });
 
-    test('all events are returned as json', async () => {
-      const response = await api.get('/api/events');
+    test('all events are returned', async () => {
+      const response = await api.get('/api/events').expect(200);
       expect(response.body.length).toBe(helpers.initialEvents.length);
     });
 
     test('a specific event is within the returned events', async () => {
-      const response = await api.get('/api/events');
+      const response = await api.get('/api/events').expect(200);
       const events = response.body;
       const eventNames = events.map(event => event.name);
       const randomEvent = helpers.getRandomEvent();

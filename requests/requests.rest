@@ -10,8 +10,8 @@ POST http://localhost:3001/api/events/
 Content-Type: application/json
 
 {
-  "name": "Tapahtuma Ubuntulta",
-  "date": "05.05.2019 15:000",
+  "name": "LANIT",
+  "date": "05.05.2019 15:00",
   "durationInHours": 4
 }
 
