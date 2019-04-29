@@ -11,7 +11,7 @@ Content-Type: application/json
 
 {
   "name": "Tapahtuma Ubuntulta",
-  "date": "05.05.2019 15:00",
+  "date": "05.05.2019 15:000",
   "durationInHours": 4
 }
 
@@ -22,6 +22,7 @@ Content-Type: application/json
 
 {
   "name": "Päivitetty tapahtuma",
+  "date": "005.08.1234 02:000",
   "durationInHours": 12
 }
 

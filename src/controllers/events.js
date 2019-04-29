@@ -89,7 +89,7 @@ eventsRouter.put('/:id', async (req, res, next) => {
     if (updatedEvent) res.json(updatedEvent.toJSON());
     else res.status(404).end();
   } catch (exception) {
-    next(exception);
+    res.status(400).end();
   }
 });
 
