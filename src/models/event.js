@@ -9,7 +9,7 @@ const validateDateString = date => {
 
 const stringifyDate = date => {
   // Format date after retrieving it in ISO-format
-  date = moment(date);
+  date = moment(date.toString());
   date = date.format('DD.MM.YYYY HH:mm');
   return date;
 };
