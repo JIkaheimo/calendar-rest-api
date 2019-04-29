@@ -7,7 +7,7 @@ const api = supertest(app);
 
 const Event = require('../models/event');
 
-describe('when there are initial notes in DB', async () => {
+describe('when there are initial events in DB', async () => {
   beforeEach(async () => {
     // Clear test DB
     await Event.deleteMany({});
@@ -34,8 +34,36 @@ describe('when there are initial notes in DB', async () => {
       const response = await api.get('/api/events');
       const events = response.body;
       const eventNames = events.map(event => event.name);
-      const randomEvent = helpers.getRandomEvent(events);
+      const randomEvent = helpers.getRandomEvent();
       expect(eventNames).toContain(randomEvent.name);
+    });
+  });
+
+  describe('GET /api/events?name=', async () => {
+    test('events are returned as JSON', async () => {
+      await api
+        .get('/api/events?name=as')
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+    });
+
+    test('right amount of events are returned for valid name', async () => {
+      const randomEvent = helpers.getRandomEvent();
+      const nameStart = randomEvent.name.substr(0, 2);
+
+      const eventsContainingName = helpers.initialEvents.filter(evt => {
+        const regex = new RegExp(`${nameStart}`, 'i');
+        return regex.exec(evt.name);
+      });
+
+      const query = `/api/events?name=${nameStart}`;
+      const response = await api.get(query);
+      expect(response.body.length).toBe(eventsContainingName.length);
+    });
+
+    test('no events are returned for no matches', async () => {
+      const query = '/api/events?name=asdjafasflajsfa';
+      await api.get(query).expect(404);
     });
   });
 });

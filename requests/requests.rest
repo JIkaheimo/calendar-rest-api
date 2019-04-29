@@ -17,7 +17,7 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3001/api/events/5cc2cceae090b621d184ed0f
+PUT http://localhost:3001/api/events/5cc311c7660a1b000456eedf
 Content-Type: application/json
 
 {
@@ -27,4 +27,4 @@ Content-Type: application/json
 
 
 ###
-DELETE http://localhost:3001/api/events/5cc311c7660a1b000456eedd
+DELETE http://localhost:3001/api/events/5cc311c7660a1b000456eedf

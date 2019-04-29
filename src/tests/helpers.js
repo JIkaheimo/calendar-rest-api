@@ -13,8 +13,8 @@ const eventsInDatabase = async () => {
   return events.map(event => event.toJSON());
 };
 
-const getRandomEvent = events => {
-  return events[Math.floor(Math.random() * events.length)];
+const getRandomEvent = () => {
+  return initialEvents[Math.floor(Math.random() * initialEvents.length)];
 };
 
 module.exports = {
