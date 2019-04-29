@@ -82,8 +82,9 @@ eventsRouter.delete('/:id', async (req, res, next) => {
 eventsRouter.put('/:id', async (req, res, next) => {
   try {
     const updatedEvent = await Event.findByIdAndUpdate(
-      { _id: req.params.id },
-      req.body
+      req.params.id,
+      req.body,
+      { new: true }
     );
     if (updatedEvent) res.json(updatedEvent.toJSON());
     else res.status(404).end();

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const moment = require('moment');
-mongoose.set('useFindAndModify', false);
 
 const validateDateString = date => {
   // Make sure the given date is in correct format and wrap it.

@@ -1,28 +1,28 @@
-GET http://localhost:3001/api/events
+GET http://localhost:3001/api/events/
 
 ###
 
-GET https://calendar-rest-api.herokuapp.com/api/events/5cc2cceae090b621d184ed0d
+GET http://localhost:3001/api/events/5cc2cceae090b621d184ed0d
 
 ###
 
-POST http://localhost:3001/api/events
+POST http://localhost:3001/api/events/
 Content-Type: application/json
 
 {
-  "nam": "Kesdaasddasasddsasdt ",
-  "date": "27.04.2019 03:00",
-  "durationInHours": 3
+  "name": "Tapahtuma Ubuntulta",
+  "date": "05.05.2019 15:00",
+  "durationInHours": 4
 }
 
 ###
 
-PUT http://localhost:3001/api/events/5cc311c7660a1b000456eedf
+PUT http://localhost:3001/api/events/5cc5f47b011d0c0004033151
 Content-Type: application/json
 
 {
-  "name": "Päivitesti nimiä",
-  "durationInHours": 3
+  "name": "Päivitetty tapahtuma",
+  "durationInHours": 12
 }
 
 
